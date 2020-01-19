@@ -1,0 +1,25 @@
+name: 'Tencent COS Action'
+description: 'GitHub Action for Tencent COS Command (coscmd)'
+author: 'zkqiang <zkqiang@126.com>'
+branding:
+  icon: 'cloud'
+  color: 'blue'
+inputs:
+  args:
+    description: 'COSCMD args, detail: https://cloud.tencent.com/document/product/436/10976'
+    required: true
+  secret_id:
+    description: 'Tencent cloud SecretId, from: https://console.cloud.tencent.com/cam/capi'
+    required: true
+  secret_key:
+    description: 'Tencent cloud SecretKey, from: https://console.cloud.tencent.com/cam/capi'
+    required: true
+  bucket:
+    description: 'COS bucket name'
+    required: true
+  region:
+    description: 'COS bucket region, detail: https://cloud.tencent.com/document/product/436/6224'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
