@@ -35,7 +35,7 @@ jobs:
         run: yarn && yarn build
 
       - name: Upload COS
-        uses: zkqiang/tencent-cos-action@master
+        uses: zkqiang/tencent-cos-action@v0.1.0
         with:
           args: delete -r -f / && upload -r ./dist/ /
           secret_id: ${{ secrets.SECRET_ID }}
