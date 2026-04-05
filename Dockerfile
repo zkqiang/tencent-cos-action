@@ -1,9 +1,9 @@
-FROM python:3.7-slim
+FROM debian:bookworm-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN pip install --upgrade --no-cache-dir coscmd
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends bash ca-certificates curl; \
+	rm -rf /var/lib/apt/lists/*
 
 COPY "entrypoint.sh" "/entrypoint.sh"
 RUN chmod +x /entrypoint.sh

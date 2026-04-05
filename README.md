@@ -1,7 +1,7 @@
 ## 简介
 
 该 [GitHub Action](https://help.github.com/cn/actions) 用于调用腾讯云
-[coscmd](https://cloud.tencent.com/document/product/436/10976)
+[coscli](https://cloud.tencent.com/document/product/436/63142)
 工具，实现对象存储的批量上传、下载、删除等操作。
 
 ## workflow 示例
@@ -9,7 +9,7 @@
 在目标仓库中创建 `.github/workflows/xxx.yml` 即可，文件名任意，配置参考如下：
 
 ```yaml
-name: CI
+name: Upload to COS
 
 on:
   push:
@@ -17,46 +17,35 @@ on:
       - master
 
 jobs:
-  build:
+  upload:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout master
-        uses: actions/checkout@v2
-        with:
-          ref: master
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v1
+      - name: Upload build artifacts to COS
+        uses: zkqiang/tencent-cos-action@v1
         with:
-          node-version: "10.x"
-
-      - name: Build project
-        run: yarn && yarn build
-
-      - name: Upload COS
-        uses: zkqiang/tencent-cos-action@v0.1.0
-        with:
-          args: delete -r -f / && upload -r ./dist/ /
-          secret_id: ${{ secrets.SECRET_ID }}
-          secret_key: ${{ secrets.SECRET_KEY }}
-          bucket: ${{ secrets.BUCKET }}
-          region: ap-shanghai
+          commands: |  # 使用 `|` 表示依次执行多条命令
+            rm -r -f cos://${{ secrets.COS_BUCKET }}/
+            cp -r ./dist/ cos://${{ secrets.COS_BUCKET }}/
+          secret_id: ${{ secrets.COS_SECRET_ID }}
+          secret_key: ${{ secrets.COS_SECRET_KEY }}
+          bucket: ${{ secrets.COS_BUCKET }}
+          region: ${{ secrets.COS_REGION }}
 ```
 
-其中 `${{ secrets.SECRET_XXX }}` 是调用 settings 配置的密钥，防止公开代码将权限密钥暴露，添加方式如下：
-
-![](https://static.zkqiang.cn/images/20200118171056.png-slim)
+其中 `${{ secrets.COS_SECRET_XXX }}` 是调用 settings 配置的密钥，防止公开代码将权限密钥暴露，添加方式：  
+`Settings → Secrets and variables → Actions → New repository secret`
 
 ## 相关参数
 
-以下参数均可参见
-[coscmd 官方文档](https://cloud.tencent.com/document/product/436/10976)
-
 | 参数 | 是否必传 | 备注 |
 | --- | --- | --- |
-| args | 是 | coscmd 命令参数，参见官方文档，多个命令用 ` && ` 隔开<br>如 `delete -r -f / && upload -r ./dist/ /` |
+| commands | 是 | coscli 命令列表，每行一条，按顺序执行，参见 [官方文档](https://cloud.tencent.com/document/product/436/63143) |
 | secret_id | 是 | 从 [控制台-API密钥管理](https://console.cloud.tencent.com/cam/capi) 获取 |
 | secret_key | 是 | 同上 |
 | bucket | 是 | 对象存储桶的名称，包含后边的数字 |
 | region | 是 | 对象存储桶的地区，[参见文档](https://cloud.tencent.com/document/product/436/6224) |
+| coscli_version | 否 | coscli 版本号，如 `v1.0.8`。不指定时自动下载最新版本 |

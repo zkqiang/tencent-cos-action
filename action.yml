@@ -1,12 +1,12 @@
 name: 'Tencent COS Action'
-description: 'GitHub Action for Tencent COS Command (coscmd)'
+description: 'GitHub Action for Tencent COS CLI (coscli)'
 author: 'zkqiang <zkqiang@126.com>'
 branding:
   icon: 'cloud'
   color: 'blue'
 inputs:
-  args:
-    description: 'COSCMD args, detail: https://cloud.tencent.com/document/product/436/10976'
+  commands:
+    description: 'Sequential coscli commands, one command per line. Use cos://default/... to target the configured bucket.'
     required: true
   secret_id:
     description: 'Tencent cloud SecretId, from: https://console.cloud.tencent.com/cam/capi'
@@ -20,6 +20,10 @@ inputs:
   region:
     description: 'COS bucket region, detail: https://cloud.tencent.com/document/product/436/6224'
     required: true
+  coscli_version:
+    description: 'coscli release tag such as v1.0.8. Defaults to the latest release when omitted.'
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'
