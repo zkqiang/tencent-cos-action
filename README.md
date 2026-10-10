@@ -48,4 +48,12 @@ jobs:
 | secret_key | 是 | 同上 |
 | bucket | 是 | 对象存储桶的名称，包含后边的数字 |
 | region | 是 | 对象存储桶的地区，[参见文档](https://cloud.tencent.com/document/product/436/6224) |
+| endpoint-type | 否 | 访问域名类型：`default`（默认域名，默认值）、`accelerate`（全球加速域名）或 `accelerate-internal`（内网全球加速域名），[参见文档](https://cloud.tencent.com/document/product/436/6224) |
 | coscli_version | 否 | coscli 版本号，如 `v1.0.8`。不指定时自动下载最新版本 |
+
+使用全球加速域名时，需要先为存储桶开启全球加速，然后增加以下参数：
+
+```yaml
+with:
+  endpoint-type: accelerate
+```

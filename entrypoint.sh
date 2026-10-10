@@ -25,7 +25,13 @@ cleanup() {
 }
 
 fail() {
-  echo "::error::$1"
+  local message="$1"
+
+  message="${message//'%'/'%25'}"
+  message="${message//$'\r'/'%0D'}"
+  message="${message//$'\n'/'%0A'}"
+
+  printf '::error::%s\n' "$message"
   exit 1
 }
 
@@ -81,6 +87,25 @@ normalize_coscli_version() {
       ;;
     *)
       printf 'v%s' "$requested_version"
+      ;;
+  esac
+}
+
+resolve_cos_endpoint() {
+  local endpoint_type="$1"
+
+  case "$endpoint_type" in
+    default)
+      COSCLI_ENDPOINT="cos.${INPUT_REGION}.myqcloud.com"
+      ;;
+    accelerate)
+      COSCLI_ENDPOINT='cos.accelerate.myqcloud.com'
+      ;;
+    accelerate-internal)
+      COSCLI_ENDPOINT='cos-internal.accelerate.tencentcos.cn'
+      ;;
+    *)
+      fail "Unsupported endpoint type: ${endpoint_type}. Expected one of: default, accelerate, accelerate-internal"
       ;;
   esac
 }
@@ -271,7 +296,10 @@ require_input "INPUT_REGION" "Region"
 readonly COSCLI_TMP_DIR="$(mktemp -d)"
 readonly COSCLI_CONFIG_PATH="${COSCLI_TMP_DIR}/${COSCLI_CONFIG_FILENAME}"
 readonly COSCLI_BIN_PATH="${COSCLI_TMP_DIR}/coscli"
-readonly COSCLI_ENDPOINT="cos.${INPUT_REGION}.myqcloud.com"
+readonly ENDPOINT_TYPE="${1-default}"
+COSCLI_ENDPOINT=''
+resolve_cos_endpoint "$ENDPOINT_TYPE"
+readonly COSCLI_ENDPOINT
 
 install_coscli
 
